@@ -12,6 +12,8 @@ from google import genai
 from openai import OpenAI, OpenAIError
 from openai.types.chat import ChatCompletionMessageParam
 from ollama import chat, ChatResponse
+from google.genai.errors import ClientError
+
 
 from assets.guess_words import GUESS_WORDS
 from classes.Button import Button
@@ -27,7 +29,6 @@ from visuals.config_screen import config_screen
 from visuals.end_screen import end_screen
 from visuals.man_screen import man_screen
 from visuals.start_screen import *
-
 
 class Status(Enum):
     start = 0
@@ -309,10 +310,8 @@ class GameState:
 
                 contents = "\n".join(map(
                     lambda message: message["content"], messages))
-                completion = self.gemini_client.models.generate_content(
-                    model="gemini-2.0-flash",
-                    contents=contents
-                )
+                completion = safe_generate_content(self.gemini_client, "gemini-2.0-flash", contents)
+
                 org_response = completion.text
 
             elif self.llm_platform == "openai":
@@ -701,3 +700,20 @@ class GameState:
 
     def delete_letter(self):
         self.words[self.current_word_index].delete_letter()
+
+
+import time
+
+def safe_generate_content(client, model, contents, max_retries=6, base_delay=2):
+    """Retry Gemini calls with exponential backoff on 429 errors."""
+    for attempt in range(max_retries):
+        try:
+            return client.models.generate_content(model=model, contents=contents)
+        except ClientError as e:
+            if getattr(e, "status_code", None) == 429:
+                wait_time = base_delay * (2 ** attempt)
+                print(f"[WARN] Gemini rate limit hit. Waiting {wait_time:.1f}s before retrying...")
+                time.sleep(wait_time)
+            else:
+                raise
+    raise RuntimeError("Gemini API rate limit persisted after multiple retries.")

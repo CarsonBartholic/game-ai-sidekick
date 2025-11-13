@@ -74,6 +74,6 @@ MAX_LLM_CONTINUOUS_CALLS = 5
 
 DEEPSEEK_MODEL = "deepseek-chat"
 
-LLM_PLATFORM = "openai"
+LLM_PLATFORM = "gemini"  # Options: "openai", "ollama", "openrouter", "deepseek", "gemini"
 LOG_LLM_MESSAGES = False
 ERROR_MESSAGE_VISIBLE_TIME = 5

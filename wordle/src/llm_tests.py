@@ -13,7 +13,7 @@ LOG_DIR = Path("benchmarks/logs")
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / f"llm_wordle_results.json"
 
-NUM_RUNS = 5
+NUM_RUNS = 1
 
 
 # Modify run_game to append per-game stats
@@ -26,7 +26,9 @@ def run_game(game: GameState, run_id: int, total_tries: int, total_success: int,
 
 
     while game.status != Status.end:
+
         game.enter_word_from_ai()
+        time.sleep(80)  # wait 60 seconds between API calls
 
         # get the feedback
         offset = 0 if game.status == Status.end else 1
@@ -57,7 +59,7 @@ def run_game(game: GameState, run_id: int, total_tries: int, total_success: int,
     total_tries += game.num_of_tries()
 
 
-    print(f"Average game completion: {avg_game_completion} / 5")
+    print(f"Average game completion: {avg_game_completion} / 9")
     print(f"Average tries: {total_tries / (run_id + 1)}")
     print(f"Average success: {total_success / (run_id + 1)}")
     print(f"Average latency: {total_latency / (run_id + 1):.2f}s")

@@ -5,17 +5,25 @@ from openai.types.chat import ChatCompletionMessageParam
 from classes.LetterCell import Feedback
 from constants import WORD_LENGTH
 
+    
 default_prompt: ChatCompletionMessageParam = {
     "role": "system",
-    "content": f"You will guess a {WORD_LENGTH} letter word based off previous guesses "
-    "and feedback in the form of correct: correct place, "
-    "present: letter is present but not in correct spot, "
-    "and incorrect: letter is not present in the word. "
-    "There may be more than one lies, meaning one or more feedbacks will be incorrect."
-    "Assume there are no lies unless otherwise stated."
-    f"Respond with the {WORD_LENGTH} letter word and then the reason why you chose that word, nothing else!"
-    "If no feedback is provided, you must guess the word without feedback."
-    "You only have a certain amount of tries to get the word."
+    "content": (
+        f"You are an expert at playing a {WORD_LENGTH}-letter word deduction game similar to Wordle. "
+        "You will receive a history of guesses with feedback for each letter, where feedback may be one of: "
+        "'correct' (right letter, right position), "
+        "'present' (right letter, wrong position), or "
+        "'incorrect' (letter not in the word). "
+        "Some feedback entries may be false, meaning one or more clues in a row may be lies. "
+        "There are {NUM} lies in total, but you do not know which ones they are. "
+        "Assume all feedback is truthful unless explicitly told otherwise. "
+        f"Your task is to propose the next {WORD_LENGTH}-letter word guess based on all available feedback. "
+        "If no feedback has been provided, make a reasonable initial guess. "
+        "Output your answer in the following format exactly:\n\n"
+        "Word: <your_guess>\n"
+        "Reason: <brief reasoning for your choice>\n\n"
+        "Do not include any other text or commentary."
+    )
 }
 
 
